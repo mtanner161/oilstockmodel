@@ -8,6 +8,21 @@ import numpy as np
 import pandas as pd
 import os
 import json
+import requests
+
+# Import Tickers
+tickerList = pd.read_csv(
+    r"C:\Users\MichaelTanner\Documents\code_doc\oilstock\tickersOilModel.csv"
+)
+
+urlone = "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol="
+urltwo = "&apikey=KDQ6SCUZM31MB7PW"  # alpha vantage API key
+
+for i in range(0, 1):
+    urlNew = urlone + str(tickerList.at[i, "Ticker"]) + urltwo
+    r = requests.get(urlNew)
+    print(r.text)
+
 
 # Create Variance Inflation Factor program
 def calc_vif(X):
@@ -32,7 +47,7 @@ vifbetter = calc_vif(vifTable)
 
 print(vifbetter)
 
-print(dataOil.info())
+# print(dataOil.info())
 
 xvar = dataOil[
     [
@@ -47,14 +62,36 @@ xvar = dataOil[
     ]
 ]
 
-yvar = dataOil["Exxon"]
+
+# ExxonMobil
+yvarExxon = dataOil["Exxon"]
 
 xvar = sm.add_constant(xvar)
-model = sm.OLS(yvar, xvar.astype(float)).fit()
+model = sm.OLS(yvarExxon, xvar.astype(float)).fit()
+predications = model.predict(xvar)
+
+printm = model.summary()
+print(printm)
+
+# Devon Energy
+yvarDevon = dataOil["Devon"]
+
+xvar = sm.add_constant(xvar)
+model = sm.OLS(yvarDevon, xvar.astype(float)).fit()
+predications = model.predict(xvar)
+
+printm = model.summary()
+print(printm)
+
+# ConocoPhillps
+yvarCop = dataOil["ConocoPhillips"]
+
+xvar = sm.add_constant(xvar)
+model = sm.OLS(yvarCop, xvar.astype(float)).fit()
 predications = model.predict(xvar)
 
 printm = model.summary()
 print(printm)
 
 
-print(dataOil)
+print("dataOil")
