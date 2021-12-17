@@ -22,7 +22,11 @@ for i in range(0, 1):
     urlNew = urlone + str(tickerList.at[i, "Ticker"]) + urltwo
     r = requests.get(urlNew)
     print(r.text)
+    df = pd.json_normalize(r.json())
+    print(df)
+    df.drop("open")
 
+    df.to_csv("testoil.csv", encoding="utf-8", index=False)
 
 # Create Variance Inflation Factor program
 def calc_vif(X):
