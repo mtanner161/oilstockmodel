@@ -15,18 +15,12 @@ tickerList = pd.read_csv(
     r"C:\Users\MichaelTanner\Documents\code_doc\oilstock\tickersOilModel.csv"
 )
 
-urlone = "https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol="
-urltwo = "&apikey=KDQ6SCUZM31MB7PW"  # alpha vantage API key
+# Import Ticker Data
+tickerData = pd.read_csv(
+    r"C:\Users\MichaelTanner\Documents\code_doc\oilstock\tickersDataModel.csv"
+)
 
-for i in range(0, 1):
-    urlNew = urlone + str(tickerList.at[i, "Ticker"]) + urltwo
-    r = requests.get(urlNew)
-    print(r.text)
-    df = pd.json_normalize(r.json())
-    print(df)
-    df.drop("open")
-
-    df.to_csv("testoil.csv", encoding="utf-8", index=False)
+tickerDataNp = tickerData.to_numpy()
 
 # Create Variance Inflation Factor program
 def calc_vif(X):
@@ -49,7 +43,6 @@ dataOilModel = dataOilModel.drop("Date", axis=1)
 vifTable = dataOilModel.iloc[:, :-1]
 vifbetter = calc_vif(vifTable)
 
-print(vifbetter)
 
 # print(dataOil.info())
 
@@ -67,35 +60,19 @@ xvar = dataOil[
 ]
 
 
-# ExxonMobil
-yvarExxon = dataOil["Exxon"]
+for i in range(0, len(tickerList)):
 
-xvar = sm.add_constant(xvar)
-model = sm.OLS(yvarExxon, xvar.astype(float)).fit()
-predications = model.predict(xvar)
+    yvar = tickerDataNp[:, i + 1]  ####LEFT OF HERE
+    df = pd.DataFrame(yvar)
+    xvar = sm.add_constant(xvar)
+    model = sm.OLS(df, xvar.astype(float)).fit()
+    predications = model.predict(xvar)
 
-printm = model.summary()
-print(printm)
+    printm = model.summary()
+    print(printm)
 
-# Devon Energy
-yvarDevon = dataOil["Devon"]
+    r = np.zeros([8, 1], dtype=float)
+    r = model.tvalues
+    tvalue = r["Oil Price"]
 
-xvar = sm.add_constant(xvar)
-model = sm.OLS(yvarDevon, xvar.astype(float)).fit()
-predications = model.predict(xvar)
-
-printm = model.summary()
-print(printm)
-
-# ConocoPhillps
-yvarCop = dataOil["ConocoPhillips"]
-
-xvar = sm.add_constant(xvar)
-model = sm.OLS(yvarCop, xvar.astype(float)).fit()
-predications = model.predict(xvar)
-
-printm = model.summary()
-print(printm)
-
-
-print("dataOil")
+    print(tvalue)
